@@ -61,28 +61,28 @@ class A2C(object):
         if is_term is True: # In on-policy method, clear buffer when episode ends
             self.replay_buffer.clear()
 
+    def sample_action_and_log_prob(self, x):
+        """Picks an action using the policy"""
+        # Numpy to torch
+        x = torch.from_numpy(x.T).float().to(self.device)
+
+        self.a_net.eval()
+        with torch.no_grad():
+            a_pred = self.a_net(x)
+        self.a_net.train()
+
+        u_mean, std = a_pred[:, :self.a_dim], a_pred[:, self.a_dim:]
+        std = std.abs()
+        u_distribution = Normal(u_mean, std)
+        u = u_distribution.sample()
+        u_log_prob = u_distribution.log_prob(u) # action은 numpy로 sample 했었음
+
+        # Torch to numpy
+        u = u.T.detach().cpu().numpy()
+        u_mean = u_mean.T.detach().cpu().numpy()
+        return u, u_log_prob, u_mean
+
     def train(self, step):
-        def sample_action_and_log_prob(x):
-            """Picks an action using the policy"""
-            # Numpy to torch
-            x = torch.from_numpy(x.T).float().to(self.device)
-
-            self.a_net.eval()
-            with torch.no_grad():
-                a_pred = self.a_net(x)
-            self.a_net.train()
-
-            u_mean, std = a_pred[:, :self.a_dim], a_pred[:, self.a_dim:]
-            std = std.abs()
-            u_distribution = Normal(u_mean, std)
-            u = u_distribution.sample()
-            u_log_prob = u_distribution.log_prob(u)  # action은 numpy로 sample 했었음
-
-            # Torch to numpy
-            u = u.T.detach().cpu().numpy()
-            u_mean = u_mean.T.detach().cpu().numpy()
-            return u, u_log_prob, u_mean
-
         if len(self.replay_buffer) > 0:
 
             x_traj, u_traj, r_traj, x2_traj, term_traj = self.replay_buffer.sample_sequence()
