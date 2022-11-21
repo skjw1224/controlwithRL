@@ -45,8 +45,8 @@ class CstrEnv(object):
 
         self.xmin = np.array([[self.t0, 0.001, 0.001, 353.15, 363.15, 3., -9000.]]).T
         self.xmax = np.array([[self.tT, 3.5, 1.8, 413.15, 408.15, 35., 0.]]).T
-        self.umin = np.array([[-1., -1000.]]).T / self.dt
-        self.umax = np.array([[1., 1000.]]).T / self.dt
+        self.umin = np.array([[-5., -4500.]]).T / self.dt
+        self.umax = np.array([[5., 4500.]]).T / self.dt
         self.ymin = self.xmin[2]
         self.ymax = self.xmax[2]
 
@@ -67,7 +67,7 @@ class CstrEnv(object):
     def step(self, time, state, action):
         # Scaled state, action, output
         t = round(time, 7)
-        x = np.clip(state, -2, 2)
+        x = np.clip(state, -1, 1)
         u = action
 
         # Identify episode terminal
@@ -82,7 +82,7 @@ class CstrEnv(object):
         cost = res['qf'].full()
 
         # Compute output
-        xplus = np.clip(xplus, -2, 2)
+        xplus = np.clip(xplus, -1, 1)
         yplus = self.y_fnc(xplus, u).full()
 
         return tplus, xplus, yplus, cost, is_term
@@ -91,7 +91,7 @@ class CstrEnv(object):
         x = self.descale(x, self.xmin, self.xmax)
         u = self.descale(u, self.umin, self.umax)
 
-        x = ca.fmax(x, self.xmin)
+        x = ca.fmin(ca.fmax(x, self.xmin), self.xmax)
         u = ca.fmin(ca.fmax(u, self.umin), self.umax)
 
         k10, k20, k30, E1, E2, E3 = self.k10, self.k20, self.k30, self.E1, self.E2, self.E3
@@ -124,8 +124,8 @@ class CstrEnv(object):
         return dx, y
 
     def cost_functions(self, x, u):
-        Q = np.diag([5.])
-        R = np.diag([0.1, 0.1])
+        Q = np.diag([20.])
+        R = np.diag([0.1, 0.1]) * self.dt
 
         y = self.y_fnc(x, u)
         ref = self.scale(self.ref_traj(), self.ymin, self.ymax)

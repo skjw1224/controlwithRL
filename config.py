@@ -84,20 +84,20 @@ class Config(object):
 
 
     def hyper_default_settings(self):
-        self.hyperparameters['init_ctrl_idx'] = 10
-        self.hyperparameters['explore_epi_idx'] = 50
-        self.hyperparameters['max_episode'] = 200
-        self.hyperparameters['hidden_nodes'] = [64, 64, 32]
-        self.hyperparameters['tau'] = 0.05
+        self.hyperparameters['init_ctrl_idx'] = 3
+        self.hyperparameters['explore_epi_idx'] = 30
+        self.hyperparameters['max_episode'] = 30
+        self.hyperparameters['hidden_nodes'] = [32, 32, 16]
+        self.hyperparameters['tau'] = 0.1
         self.hyperparameters['buffer_size'] = 600
         self.hyperparameters['minibatch_size'] = 32
 
         self.hyperparameters['adam_eps'] = 1E-4
         self.hyperparameters['l2_reg'] = 1E-3
-        self.hyperparameters['grad_clip_mag'] = 5.0
+        self.hyperparameters['grad_clip_mag'] = 10.0
 
         self.hyperparameters['save_period'] = 5
-        self.hyperparameters['plot_snapshot'] = [0, 5, 10, 15, 20]
+        self.hyperparameters['plot_snapshot'] = [0, 5, 15, 20, 25]
 
         # Algorithm specific settings
         if self.algorithm['controller']['name'] in ['DQN']:
@@ -106,10 +106,10 @@ class Config(object):
                 utils.action_meshgen(self.hyperparameters['single_dim_mesh'], self.environment.a_dim)
             self.hyperparameters['learning_rate'] = 2E-4
         elif self.algorithm['controller']['name'] == 'DDPG':
-            self.hyperparameters['critic_learning_rate'] = 1E-2
-            self.hyperparameters['actor_learning_rate'] = 1E-3
+            self.hyperparameters['critic_learning_rate'] = 5E-3
+            self.hyperparameters['actor_learning_rate'] = 1E-2
         elif self.algorithm['controller']['name'] == 'A2C':
-            self.hyperparameters['n_step_TD'] = 10
-            self.hyperparameters['critic_learning_rate'] =2E-4
-            self.hyperparameters['actor_learning_rate'] = 1E-4
+            self.hyperparameters['n_step_TD'] = 1
+            self.hyperparameters['critic_learning_rate'] =5E-3
+            self.hyperparameters['actor_learning_rate'] = 1E-2
             self.hyperparameters['eps_decay_rate'] = 0.99

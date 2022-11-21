@@ -108,7 +108,7 @@ class DDPG(object):
             a_loss = self.target_q_net(torch.cat([s_batch, a_pred_batch], dim=-1)).mean()
             nn_update_one_step(self.mu_net, self.target_mu_net, self.mu_net_opt, a_loss)
 
-            loss = q_loss + a_loss
+            loss = q_loss + 10 * a_loss
             loss = loss.cpu().detach().numpy().item()
         else:
             loss = 0.

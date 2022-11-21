@@ -36,7 +36,7 @@ class A2C(object):
         self.v_net = self.approximator(self.s_dim, 1, self.crt_h_nodes).to(self.device)
         self.v_net_opt = torch.optim.Adam(self.v_net.parameters(), lr=self.crt_learning_rate, eps=self.adam_eps, weight_decay=self.l2_reg)
 
-        self.a_net = self.approximator(self.s_dim, 2 * self.a_dim, self.act_h_nodes).to(self.device)
+        self.a_net = self.approximator(self.s_dim, 2 * self.a_dim, self.act_h_nodes, saturate=True).to(self.device)
         self.a_net_opt = torch.optim.RMSprop(self.a_net.parameters(), lr=self.act_learning_rate, eps=self.adam_eps, weight_decay=self.l2_reg)
 
         self.trajectory = []
